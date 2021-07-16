@@ -1,7 +1,8 @@
 # AnimSnapHelperDemo
 SnapHelper的一个Demo，
 
-伴有效果：滑动时itemView位置，大小变化，从左边滑出时会渐变缩小消失
+伴有效果：滑动时item中的View位置、大小会跟随滚动变化，
+当从左边滑出时会渐变缩小消失
 
 PS:基于gravitysnaphelper
 
