@@ -1,12 +1,18 @@
 package com.github.rubensousa.recyclerviewsnap.adapter
 
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rubensousa.recyclerviewsnap.R
@@ -42,7 +48,7 @@ class AppAdapter(private val layoutId: Int = R.layout.adapter) :
             val percent = marginLeft.toFloat() / holder.itemView.getScreenWidth()
             if (percent <= 0f) {
                 if (percent <= -0.25f / 2) {
-                    resetViewParams(0,holder)
+                    resetViewParams(0, holder)
                     holder.contentContainer.scaleX = INIT_ZOOM_SCALE[0]
                     holder.contentContainer.scaleY = INIT_ZOOM_SCALE[0]
                     holder.contentContainer.alpha = INIT_ZOOM_SCALE[0]
@@ -94,7 +100,7 @@ class AppAdapter(private val layoutId: Int = R.layout.adapter) :
         }
 
 
-        fun resetViewParams(position:Int,holder: VH) {
+        fun resetViewParams(position: Int, holder: VH) {
             when (position) {
                 in 0..3 -> {
                     (holder.contentContainer.layoutParams as FrameLayout.LayoutParams)
@@ -157,9 +163,20 @@ class AppAdapter(private val layoutId: Int = R.layout.adapter) :
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: VH, position: Int) {
+        items[position].isChecked = checkPos == position
         holder.bind(items[position])
 //        holder.contentContainer.setBackgroundResource(TEST_COLOR[position % 4])
 
+    }
+
+    var callUpdateAllHolder: (() -> Unit?)? = null
+    var checkPos = -1
+    fun check(pos:Int) {
+        checkPos = pos
+        items.forEachIndexed { index, app ->
+            app.isChecked = index==checkPos
+        }
+        callUpdateAllHolder?.invoke()
     }
 
 
@@ -177,10 +194,10 @@ class AppAdapter(private val layoutId: Int = R.layout.adapter) :
         holder.contentContainer.scaleY = INIT_ZOOM_SCALE[1]
         holder.contentContainer.alpha = INIT_ZOOM_SCALE[1]
         val position = holder.layoutPosition
-        resetViewParams(position,holder)
+        resetViewParams(position, holder)
     }
 
-    class VH(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    inner class VH(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         public val container: View = itemView.findViewById(R.id.itemContainer)
         public val contentContainer: View = itemView.findViewById(R.id.contentContainer)
@@ -192,14 +209,27 @@ class AppAdapter(private val layoutId: Int = R.layout.adapter) :
             view.setOnClickListener(this)
         }
 
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         fun bind(app: App) {
             imageView.setImageResource(app.drawable)
             nameTextView.text = app.name
             timeTextView.text = app.rating.toString()
+
+            imageView.outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, view.width / 2f)
+                }
+            }
+            imageView.clipToOutline = true
+            imageView.background =
+                    if (app.isChecked)
+                        ColorDrawable(Color.parseColor("#3377ff"))
+                    else
+                        null
         }
 
         override fun onClick(v: View?) {
-
+            this@AppAdapter.check(this.adapterPosition)
         }
     }
 }

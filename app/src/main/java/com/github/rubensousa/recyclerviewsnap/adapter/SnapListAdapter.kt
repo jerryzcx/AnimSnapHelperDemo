@@ -77,6 +77,15 @@ class SnapListAdapter : RecyclerView.Adapter<SnapListAdapter.VH>() {
                     }
                 }
             })
+            adapter.callUpdateAllHolder = {
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                for (i in 0 until manager.childCount){
+                    val view = manager.getChildAt(i)?:continue
+                    val holder = recyclerView.getChildViewHolder(view)
+                    item?.apps?.get(holder.adapterPosition) ?: continue
+                    (holder as AppAdapter.VH).bind(item?.apps?.get(holder.adapterPosition)!!)
+                }
+            }
         }
 
         fun bind(snapList: SnapList) {
