@@ -99,6 +99,10 @@ class SnapListAdapter : RecyclerView.Adapter<SnapListAdapter.VH>() {
             snapHelper.maxFlingSizeFraction = snapList.maxFlingSizeFraction
             snapHelper.snapToPadding = snapList.snapToPadding
             applyDecoration(snapList)
+            // for test
+            recyclerView.post {
+                recyclerView.smoothScrollToPosition(5)
+            }
         }
 
         private fun applyDecoration(snapList: SnapList) {
